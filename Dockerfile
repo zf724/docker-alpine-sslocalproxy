@@ -1,7 +1,12 @@
 FROM alpine:edge
 MAINTAINER SgrAlpha <admin@mail.sgr.io> 
 
-EXPOSE 1080 8118
+ENV SERVER_IP 127.0.0.1
+ENV SERVER_PORT 8888
+ENV LOCAL_SS_PORT 1080
+ENV LOCAL_HTTP_PORT 8118
+ENV PASSWORD password
+ENV ENCRYPTION aes-256-cfb
 
 RUN set -ex && \
 	echo 'http://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && \
@@ -15,10 +20,11 @@ RUN set -ex && \
 		pcre \
 		libev \
 		shadowsocks-libev && \
-	sed -i'' 's/127\.0\.0\.1:8118/0\.0\.0\.0:8118/' /etc/privoxy/config && \
-	echo 'forward-socks5  /       127.0.0.1:1080  .' >> /etc/privoxy/config && \
 	mkdir -p /etc/shadowsocks-libev
 
-HEALTHCHECK --interval=10s --timeout=5s --retries=10 CMD curl -x http://127.0.0.1:8118 https://www.google.com/gen_204 || exit 1
+ADD entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-CMD privoxy /etc/privoxy/config && ss-local -b 0.0.0.0 -u --fast-open -c /etc/shadowsocks-libev/config.json
+EXPOSE $LOCAL_SS_PORT $LOCAL_HTTP_PORT
+
+ENTRYPOINT ["/entrypoint.sh"]
