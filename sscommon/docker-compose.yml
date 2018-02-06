@@ -1,0 +1,18 @@
+version: '2'
+services:
+    ss:
+      build:
+        context: .
+      entrypoint:
+        - /entrypoint.sh
+        - -m
+        - "ss-local"
+        - -s
+        - "-s SERVER_IP -p SERVER_PORT -b LOCAL_IP -l LOCAL_PORT -m SERVER_ENCRYPT_METHOD -k SERVER_PASSWORD --fast-open"
+        - -x
+        - -e
+        - "kcpclient"
+        - -k
+        - "-r SSSERVER_IP:6500 -l :6500 -mode fast2"
+      ports:
+        - 1080:1080
