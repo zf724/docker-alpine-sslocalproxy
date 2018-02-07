@@ -1,18 +1,19 @@
 version: '2'
 services:
-    ss:
+    shadowsocks:
       build:
         context: .
       entrypoint:
         - /entrypoint.sh
         - -m
-        - "ss-local"
+        - "ss-server"
         - -s
-        - "-s SERVER_IP -p SERVER_PORT -b LOCAL_IP -l LOCAL_PORT -m SERVER_ENCRYPT_METHOD -k SERVER_PASSWORD --fast-open"
+        - "-s 0.0.0.0 -p 6443 -m aes-256-cfb -k test123 --fast-open"
         - -x
         - -e
-        - "kcpclient"
+        - "kcpserver"
         - -k
-        - "-r SSSERVER_IP:6500 -l :6500 -mode fast2"
+        - "-t 127.0.0.1:6443 -l :6500 -mode fast2"
       ports:
-        - 1080:1080
+        - 6443:6443
+        - 6500:6500/udp
